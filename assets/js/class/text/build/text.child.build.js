@@ -52,10 +52,8 @@ export default class{
             curveSegments: 12
         })
 
-        const edge = new THREE.EdgesGeometry(text)
+        const arr = new THREE.EdgesGeometry(text).attributes.position.array
         const geometry = new THREE.BufferGeometry()
-
-        const arr = edge.attributes.position.array
 
         // const key = []
         const coordinate = []
