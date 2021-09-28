@@ -52,7 +52,7 @@ export default class{
 
         const bMesh = this.local.children[idx - 1]
         const bx = bMesh === undefined ? 0 : bMesh.position.x + bMesh.geometry.xsize
-        const cx = this.param.gap + bx
+        const cx = (idx === 0 ? 0 : this.param.gap) + bx
 
         mesh.position.x = cx
 
