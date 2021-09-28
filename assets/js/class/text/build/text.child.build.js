@@ -4,7 +4,7 @@ import PUBLIC_METHOD from '../../../method/method.js'
 export default class{
     constructor({group}){
         this.param = {
-            text: 'NETFLIX',
+            text: 'A',
             color: 0xffffff,
             textHeight: 30
         }
@@ -32,7 +32,7 @@ export default class{
         this.local = new THREE.Group()
 
         loader.load('assets/font/helvetiker_regular.typeface.json', font => {
-            this.param.text.split('').forEach(txt => {
+            this.param.text.split('').forEach((txt, i) => {
                 this.createMesh(font, txt)
             })
         })
