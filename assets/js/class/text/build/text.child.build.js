@@ -91,11 +91,11 @@ export default class{
 
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(temp.flat()), 3))
 
-        const [xmin, xmax] = temp.map(e => e[0]).sort((a, b) => a - b).filter((e, i, a) => i === 0 || i === a.length - 1)
+        const sorted = temp.map(e => e[0]).sort((a, b) => a - b)
 
-        geometry.xmin = xmin
-        geometry.xmax = xmax
-        geometry.xsize = xmax - xmin
+        geometry.xmin = sorted[0]
+        geometry.xmax = sorted[sorted.length - 1]
+        geometry.xsize = sorted[sorted.length - 1] - sorted[0]
 
         return geometry
     }
