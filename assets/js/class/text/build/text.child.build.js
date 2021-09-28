@@ -4,9 +4,11 @@ import PUBLIC_METHOD from '../../../method/method.js'
 export default class{
     constructor({group}){
         this.param = {
-            text: 'N',
+            text: 'DOKEV',
             color: 0xffffff,
-            textHeight: 30
+            textSize: 150,
+            textHeight: 30,
+            gap: 20
         }
 
         this.init(group)
@@ -33,29 +35,38 @@ export default class{
 
         loader.load('assets/font/helvetiker_regular.typeface.json', font => {
             this.param.text.split('').forEach((txt, i) => {
-                this.createMesh(font, txt)
+                this.createMesh(font, txt, i)
             })
+
+            const item = this.local.children[this.local.children.length - 1]
+            const size = item.position.x + item.geometry.xsize
+
+            this.local.position.x = size / -2
+            this.local.position.y = this.param.textSize / -2 
         })
     }
-    createMesh(font, txt){
+    createMesh(font, txt, idx){
         const geometry = this.createGeometry(font, txt)
         const material = this.createMaterial()
         const mesh = new THREE.LineSegments(geometry, material)
+
+        const bMesh = this.local.children[idx - 1]
+        const bx = bMesh === undefined ? 0 : bMesh.position.x + bMesh.geometry.xsize
+        const cx = this.param.gap + bx
+
+        mesh.position.x = cx
 
         this.local.add(mesh)
     }
     createGeometry(font, txt){
         const text = new THREE.TextGeometry(txt, {
             font: font,
-            size: 150,
+            size: this.param.textSize,
             height: this.param.textHeight,
             curveSegments: 12
         })
-
         const arr = new THREE.EdgesGeometry(text).attributes.position.array
         const geometry = new THREE.BufferGeometry()
-
-        // const key = []
         const coordinate = []
         const temp = []
 
@@ -64,10 +75,7 @@ export default class{
             const y = arr[i * 3 + 1]
             const z = arr[i * 3 + 2]
             
-            // const k = '' + x + y + z
-
             if(true){
-                // key.push(k)
                 coordinate.push([x, y, z])
             }
         }
@@ -81,9 +89,13 @@ export default class{
             temp.push(p1, p2)
         }
 
-        console.log(temp)
-
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(temp.flat()), 3))
+
+        const [xmin, xmax] = temp.map(e => e[0]).sort((a, b) => a - b).filter((e, i, a) => i === 0 || i === a.length - 1)
+
+        geometry.xmin = xmin
+        geometry.xmax = xmax
+        geometry.xsize = xmax - xmin
 
         return geometry
     }
