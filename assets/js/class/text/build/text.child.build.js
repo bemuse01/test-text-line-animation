@@ -51,6 +51,7 @@ export default class{
 
         const key = []
         const coordinate = []
+        const pos = []
 
         for(let i = 0; i < arr.length / 3; i++){
             const x = arr[i * 3]
@@ -72,15 +73,25 @@ export default class{
         for(let i = 0; i < coordinate.length / 3; i++){
             const x = coordinate[i * 3]
             const y = coordinate[i * 3 + 1]
+            const z = coordinate[i * 3 + 2]
             
-            // const v1
-            // const v2
+            const v1 = new THREE.Vector2(x, y).sub(center)
+            const v2 = std.sub(center)
 
+            const calc = v1.dot(v2) / (v1.length() * v2.length())
+
+            const theta = Math.acos(calc)
+
+            pos.push([x, y, z, theta])
         }
+
+        const newPos = [...pos].sort((a, b) => a[3] - b[3]).map(e => e.slice(0, 3)).flat()
+
+        console.log(pos)
 
         const geometry = new THREE.BufferGeometry()
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(coordinate), 3))
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(newPos), 3))
 
         return geometry
     }
