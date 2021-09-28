@@ -4,9 +4,9 @@ import PUBLIC_METHOD from '../../../method/method.js'
 export default class{
     constructor({group}){
         this.param = {
-            text: 'X',
+            text: 'NETFLIX',
             color: 0xffffff,
-
+            textHeight: 30
         }
 
         this.init(group)
@@ -16,82 +16,76 @@ export default class{
     // init
     init(group){
         this.create(group)
-        // this.add(group)
+        this.add(group)
     }
 
 
     // add
     add(group){
-        group.add(this.mesh)
+        group.add(this.local)
     }
 
 
     // create
     create(group){
         const loader = new THREE.FontLoader()
-        
-        loader.load('assets/font/helvetiker_regular.typeface.json', font => this.createMesh(group, font))
+        this.local = new THREE.Group()
+
+        loader.load('assets/font/helvetiker_regular.typeface.json', font => {
+            this.param.text.split('').forEach(txt => {
+                this.createMesh(font, txt)
+            })
+        })
     }
-    createMesh(group, font){
-        const geometry = this.createGeometry(font)
+    createMesh(font, txt){
+        const geometry = this.createGeometry(font, txt)
         const material = this.createMaterial()
-        this.mesh = new THREE.Line(geometry, material)
+        const mesh = new THREE.LineSegments(geometry, material)
 
-        console.log(geometry.attributes.position)
-
-        group.add(this.mesh)
+        this.local.add(mesh)
     }
-    createGeometry(font){
-        const arr = new THREE.TextGeometry(this.param.text, {
+    createGeometry(font, txt){
+        const text = new THREE.TextGeometry(txt, {
             font: font,
             size: 150,
-            height: 10,
-            curveSegments: 1
-        }).attributes.position.array
+            height: this.param.textHeight,
+            curveSegments: 12
+        })
 
-        const key = []
+        const edge = new THREE.EdgesGeometry(text)
+        const geometry = new THREE.BufferGeometry()
+
+        const arr = edge.attributes.position.array
+
+        // const key = []
         const coordinate = []
-        const pos = []
+        const temp = []
 
         for(let i = 0; i < arr.length / 3; i++){
             const x = arr[i * 3]
             const y = arr[i * 3 + 1]
             const z = arr[i * 3 + 2]
             
-            const k = '' + x + y + z
+            // const k = '' + x + y + z
 
-            if(z === 0 && !key.includes(k)){
-                key.push(k)
-                coordinate.push(x, y, z)
+            if(true){
+                // key.push(k)
+                coordinate.push([x, y, z])
             }
         }
 
-        const center = PUBLIC_METHOD.getCenterPoint(coordinate)
-        const std = center.clone().add(new THREE.Vector2(1, 0))
-        console.log(center, std)
+        for(let i = 0; i < coordinate.length / 2; i++){
+            const p1 = coordinate[i * 2]
+            const p2 = coordinate[i * 2 + 1]
 
-        for(let i = 0; i < coordinate.length / 3; i++){
-            const x = coordinate[i * 3]
-            const y = coordinate[i * 3 + 1]
-            const z = coordinate[i * 3 + 2]
-            
-            const v1 = new THREE.Vector2(x, y).sub(center)
-            const v2 = std.sub(center)
+            if(p1[2] === this.param.textHeight || p2[2] === this.param.textHeight) continue
 
-            const calc = v1.dot(v2) / (v1.length() * v2.length())
-
-            const theta = Math.acos(calc)
-
-            pos.push([x, y, z, theta])
+            temp.push(p1, p2)
         }
 
-        const newPos = [...pos].sort((a, b) => a[3] - b[3]).map(e => e.slice(0, 3)).flat()
+        console.log(temp)
 
-        console.log(pos)
-
-        const geometry = new THREE.BufferGeometry()
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(newPos), 3))
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(temp.flat()), 3))
 
         return geometry
     }
@@ -107,10 +101,8 @@ export default class{
 
     // animate
     animate(){
-        if(!this.mesh) return
-
-        this.mesh.rotation.x += 0.01
-        this.mesh.rotation.y += 0.01
+        // this.local.rotation.x += 0.01
+        // this.local.rotation.y += 0.01
     }
 
 
