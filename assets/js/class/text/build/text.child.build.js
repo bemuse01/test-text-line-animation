@@ -17,7 +17,7 @@ export default class{
 
     // init
     init(group){
-        this.create(group)
+        this.create()
         this.add(group)
     }
 
@@ -29,7 +29,7 @@ export default class{
 
 
     // create
-    create(group){
+    create(){
         const loader = new THREE.FontLoader()
         this.local = new THREE.Group()
 
