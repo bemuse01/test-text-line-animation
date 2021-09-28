@@ -4,7 +4,7 @@ import PUBLIC_METHOD from '../../../method/method.js'
 export default class{
     constructor({group}){
         this.param = {
-            text: 'A',
+            text: 'N',
             color: 0xffffff,
             textHeight: 30
         }
