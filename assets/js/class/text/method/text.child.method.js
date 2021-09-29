@@ -1,6 +1,22 @@
 import * as THREE from '../../../lib/three.module.js'
 
 export default {
+    getPointDist(font, std, param){
+        const text = new THREE.TextGeometry(std, {
+            font: font,
+            size: param.textSize,
+            height: param.textHeight,
+            curveSegments: param.curveSegments
+        })
+        const arr = new THREE.EdgesGeometry(text).attributes.position.array
+
+        const p1 = {x: arr[0], y: arr[1], z: arr[2]}
+        const p2 = {x: arr[3], y: arr[4], z: arr[5]}
+
+        const dist = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2)
+
+        return dist
+    },
     get2Dcoord(font, txt, param){
         const text = new THREE.TextGeometry(txt, {
             font: font,
@@ -18,9 +34,7 @@ export default {
             const y = arr[i * 3 + 1]
             const z = arr[i * 3 + 2]
             
-            if(true){
-                coordinate.push([x, y, z])
-            }
+            coordinate.push([x, y, z])
         }
 
         for(let i = 0; i < coordinate.length / 2; i++){

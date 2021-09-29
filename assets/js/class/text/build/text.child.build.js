@@ -6,11 +6,13 @@ export default class{
     constructor({group}){
         this.param = {
             text: 'DOKEV',
+            std: 'O',
             color: 0xffffff,
             textSize: 150,
             textHeight: 30,
             curveSegments: 12,
-            gap: 20
+            gap: 20,
+            fontSrc: 'assets/font/helvetiker_regular.typeface.json'
         }
 
         this.init(group)
@@ -19,8 +21,14 @@ export default class{
 
     // init
     init(group){
-        this.create()
-        this.add(group)
+        const loader = new THREE.FontLoader()
+
+        loader.load(this.param.fontSrc, font => {
+            this.font = font
+
+            this.create()
+            this.add(group)
+        })
     }
 
 
@@ -32,23 +40,20 @@ export default class{
 
     // create
     create(){
-        const loader = new THREE.FontLoader()
         this.local = new THREE.Group()
 
-        loader.load('assets/font/helvetiker_regular.typeface.json', font => {
-            this.param.text.split('').forEach((txt, i) => {
-                this.createMesh(font, txt, i)
-            })
-
-            const item = this.local.children[this.local.children.length - 1]
-            const size = item.position.x + item.geometry.xsize
-
-            this.local.position.x = size / -2
-            this.local.position.y = this.param.textSize / -2 
+        this.param.text.split('').forEach((txt, i) => {
+            this.createMesh(txt, i)
         })
+
+        const item = this.local.children[this.local.children.length - 1]
+        const size = item.position.x + item.geometry.xsize
+
+        this.local.position.x = size / -2
+        this.local.position.y = this.param.textSize / -2 
     }
-    createMesh(font, txt, idx){
-        const geometry = this.createGeometry(font, txt)
+    createMesh(txt, idx){
+        const geometry = this.createGeometry(txt)
         const material = this.createMaterial()
         const mesh = new THREE.LineSegments(geometry, material)
 
@@ -60,8 +65,8 @@ export default class{
 
         this.local.add(mesh)
     }
-    createGeometry(font, txt){
-        const coord = METHOD.get2Dcoord(font, txt, this.param)
+    createGeometry(txt){
+        const coord = METHOD.get2Dcoord(this.font, txt, this.param)
         const sorted = coord.map(e => e[0]).sort((a, b) => a - b)
 
         const geometry = new THREE.BufferGeometry()
