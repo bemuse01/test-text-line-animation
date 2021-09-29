@@ -10,7 +10,7 @@ export default class{
             color: 0xffffff,
             textSize: 150,
             textHeight: 30,
-            curveSegments: 12,
+            curveSegments: 20,
             gap: 20,
             fontSrc: 'assets/font/helvetiker_regular.typeface.json'
         }
@@ -25,7 +25,8 @@ export default class{
 
         loader.load(this.param.fontSrc, font => {
             this.font = font
-
+            this.pdist = METHOD.getPointDist(font, this.param.std, this.param)
+            
             this.create()
             this.add(group)
         })
@@ -66,7 +67,7 @@ export default class{
         this.local.add(mesh)
     }
     createGeometry(txt){
-        const coord = METHOD.get2Dcoord(this.font, txt, this.param)
+        const coord = METHOD.get2Dcoord(this.font, txt, this.pdist, this.param)
         const sorted = coord.map(e => e[0]).sort((a, b) => a - b)
 
         const geometry = new THREE.BufferGeometry()

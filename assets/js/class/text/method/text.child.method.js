@@ -1,4 +1,5 @@
 import * as THREE from '../../../lib/three.module.js'
+import PUBLIC_METHOD from '../../../method/method.js'
 
 export default {
     getPointDist(font, std, param){
@@ -13,11 +14,11 @@ export default {
         const p1 = {x: arr[0], y: arr[1], z: arr[2]}
         const p2 = {x: arr[3], y: arr[4], z: arr[5]}
 
-        const dist = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2)
+        const dist = PUBLIC_METHOD.getPointsDist(p1, p2)
 
         return dist
     },
-    get2Dcoord(font, txt, param){
+    get2Dcoord(font, txt, pdist, param){
         const text = new THREE.TextGeometry(txt, {
             font: font,
             size: param.textSize,
@@ -46,6 +47,44 @@ export default {
             temp.push(p1, p2)
         }
 
-        return temp
+        const coord = this.expandCoord(temp, pdist)
+
+        console.log(coord, temp)
+
+        return coord
+    },
+    expandCoord(temp, pdist){
+        let coord = []
+
+        for(let i = 0; i < temp.length / 2; i++){
+            const p1 = temp[i * 2]
+            const p2 = temp[i * 2 + 1]
+
+            const dist = PUBLIC_METHOD.getPointsDist({x: p1[0], y: p1[1], z: p2[2]}, {x: p2[0], y: p2[1], z: p2[2]})
+            const xd = Math.abs(p1[0] - p2[0])
+            const xs = -Math.sign(p1[0] - p2[0])
+            const yd = Math.abs(p1[1] - p2[1])
+            const ys = -Math.sign(p1[1] - p2[1])
+
+            if(dist < pdist * 2) coord.push(p1, p2)
+            else{
+                const arr = [p1]
+                const len = Math.floor(dist / pdist)
+                const per = 1 / len
+
+                for(let i = per; i < 1 - per; i += per){
+                    const x = p1[0] + xd * i * xs
+                    const y = p1[1] + yd * i * ys
+                    const z = 0
+
+                    arr.push([x, y, z], [x, y, z])
+                }
+
+                arr.push(p2)
+                coord = coord.concat(arr)
+            }
+        }
+
+        return coord
     }
 }
