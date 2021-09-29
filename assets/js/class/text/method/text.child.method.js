@@ -49,8 +49,6 @@ export default {
 
         const coord = this.expandCoord(temp, pdist)
 
-        console.log(coord, temp)
-
         return coord
     },
     expandCoord(temp, pdist){
