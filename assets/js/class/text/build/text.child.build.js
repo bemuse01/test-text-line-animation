@@ -13,7 +13,9 @@ export default class{
             textHeight: 30,
             curveSegments: 12,
             gap: 20,
-            fontSrc: 'assets/font/helvetiker_regular.typeface.json'
+            fontSrc: 'assets/font/helvetiker_regular.typeface.json',
+            opacity: 0.1,
+            vel: 0.01
         }
 
         this.init(group)
@@ -70,7 +72,7 @@ export default class{
     createGeometry(txt){
         const coord = METHOD.get2Dcoord(this.font, txt, this.pdist, this.param)
         const sorted = coord.map(e => e[0]).sort((a, b) => a - b)
-        const opacity = Array.from({length: coord.length}, () => 0.1)
+        const opacity = Array.from({length: coord.length}, () => this.param.opacity)
 
         const geometry = new THREE.BufferGeometry()
 
@@ -114,8 +116,8 @@ export default class{
             geometry.idx = (geometry.idx + 1) % array.length
 
             for(let i = 0; i < array.length; i++) {
-                if(array[i] <= 0.1) continue
-                array[i] -= 0.01
+                if(array[i] <= this.param.opacity) continue
+                array[i] -= this.param.vel
             }
 
             opacity.needsUpdate = true
