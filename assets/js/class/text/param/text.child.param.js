@@ -8,5 +8,5 @@ export default {
     gap: 20,
     fontSrc: 'assets/font/helvetiker_regular.typeface.json',
     opacity: 0.1,
-    vel: 0.006
+    vel: 0.005
 }
