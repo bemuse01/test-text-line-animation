@@ -11,7 +11,7 @@ export default class{
             color: 0xffffff,
             textSize: 150,
             textHeight: 30,
-            curveSegments: 20,
+            curveSegments: 12,
             gap: 20,
             fontSrc: 'assets/font/helvetiker_regular.typeface.json'
         }
@@ -80,6 +80,7 @@ export default class{
         geometry.xmin = sorted[0]
         geometry.xmax = sorted[sorted.length - 1]
         geometry.xsize = sorted[sorted.length - 1] - sorted[0]
+        geometry.idx = 0
 
         return geometry
     }
@@ -102,6 +103,23 @@ export default class{
     animate(){
         // this.local.rotation.x += 0.01
         // this.local.rotation.y += 0.01
+        if(!this.local) return
+
+        this.local.children.forEach(mesh => {
+            const geometry = mesh.geometry
+            const opacity = geometry.attributes.opacity
+            const array = opacity.array
+
+            array[geometry.idx] = 1
+            geometry.idx = (geometry.idx + 1) % array.length
+
+            for(let i = 0; i < array.length; i++) {
+                if(array[i] <= 0.1) continue
+                array[i] -= 0.01
+            }
+
+            opacity.needsUpdate = true
+        })
     }
 
 
