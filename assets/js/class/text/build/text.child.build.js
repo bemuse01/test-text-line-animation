@@ -1,23 +1,10 @@
 import * as THREE from '../../../lib/three.module.js'
-import PUBLIC_METHOD from '../../../method/method.js'
 import METHOD from '../method/text.child.method.js'
 import SHADER from '../shader/text.child.shader.js'
+import PARAM from '../param/text.child.param.js'
 
 export default class{
     constructor({group}){
-        this.param = {
-            text: 'DOKEV',
-            std: 'O',
-            color: 0xffffff,
-            textSize: 150,
-            textHeight: 30,
-            curveSegments: 12,
-            gap: 20,
-            fontSrc: 'assets/font/helvetiker_regular.typeface.json',
-            opacity: 0.1,
-            vel: 0.01
-        }
-
         this.init(group)
     }
 
@@ -26,9 +13,9 @@ export default class{
     init(group){
         const loader = new THREE.FontLoader()
 
-        loader.load(this.param.fontSrc, font => {
+        loader.load(PARAM.fontSrc, font => {
             this.font = font
-            this.pdist = METHOD.getPointDist(font, this.param.std, this.param)
+            this.pdist = METHOD.getPointDist(font, PARAM.std, PARAM)
             
             this.create()
             this.add(group)
@@ -46,7 +33,7 @@ export default class{
     create(){
         this.local = new THREE.Group()
 
-        this.param.text.split('').forEach((txt, i) => {
+        PARAM.text.split('').forEach((txt, i) => {
             this.createMesh(txt, i)
         })
 
@@ -54,7 +41,7 @@ export default class{
         const size = item.position.x + item.geometry.xsize
 
         this.local.position.x = size / -2
-        this.local.position.y = this.param.textSize / -2 
+        this.local.position.y = PARAM.textSize / -2 
     }
     createMesh(txt, idx){
         const geometry = this.createGeometry(txt)
@@ -63,16 +50,16 @@ export default class{
 
         const bMesh = this.local.children[idx - 1]
         const bx = bMesh === undefined ? 0 : bMesh.position.x + bMesh.geometry.xsize
-        const cx = (idx === 0 ? 0 : this.param.gap) + bx
+        const cx = (idx === 0 ? 0 : PARAM.gap) + bx
 
         mesh.position.x = cx
 
         this.local.add(mesh)
     }
     createGeometry(txt){
-        const coord = METHOD.get2Dcoord(this.font, txt, this.pdist, this.param)
+        const coord = METHOD.get2Dcoord(this.font, txt, this.pdist, PARAM)
         const sorted = coord.map(e => e[0]).sort((a, b) => a - b)
-        const opacity = Array.from({length: coord.length}, () => this.param.opacity)
+        const opacity = Array.from({length: coord.length}, () => PARAM.opacity)
 
         const geometry = new THREE.BufferGeometry()
 
@@ -88,14 +75,14 @@ export default class{
     }
     createMaterial(){
         // return new THREE.LineBasicMaterial({
-        //     color: this.param.color
+        //     color: PARAM.color
         // })
         return new THREE.ShaderMaterial({
             vertexShader: SHADER.draw.vertex,
             fragmentShader: SHADER.draw.fragment,
             transparent: true,
             uniforms: {
-                uColor: {value: new THREE.Color(this.param.color)}
+                uColor: {value: new THREE.Color(PARAM.color)}
             }
         })
     }
@@ -116,8 +103,8 @@ export default class{
             geometry.idx = (geometry.idx + 1) % array.length
 
             for(let i = 0; i < array.length; i++) {
-                if(array[i] <= this.param.opacity) continue
-                array[i] -= this.param.vel
+                if(array[i] <= PARAM.opacity) continue
+                array[i] -= PARAM.vel
             }
 
             opacity.needsUpdate = true
@@ -128,5 +115,24 @@ export default class{
     // resize
     resize(){
 
-    } 
+    }
+    
+    
+    // get
+    getCurrentPos(){
+        if(!this.local) return false
+
+        const pos = []
+        this.local.children.forEach(mesh => {
+            const geometry = mesh.geometry
+            const idx = geometry.idx
+            const array = geometry.attributes.position.array
+
+            const x = array[idx * 3] + mesh.position.x + this.local.position.x
+            const y = array[idx * 3 + 1] + this.local.position.y
+
+            pos.push(new THREE.Vector2(x, y))
+        })
+        return pos
+    }
 }

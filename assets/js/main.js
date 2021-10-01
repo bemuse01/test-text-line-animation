@@ -24,7 +24,7 @@ new Vue({
         initThree(){
             OBJECT.app = new APP()
 
-            this.createObject()
+            this.createObject(OBJECT.app)
         },
         resizeThree(){
             const {app} = OBJECT
@@ -42,13 +42,14 @@ new Vue({
                 OBJECT[i].animate({app, audio})
             }
         },
-        createObject(){
-            this.createText()
+        createObject(app){
+            this.createText(app)
         },
-        createText(){
-            OBJECT.text = new TEXT(OBJECT)
+        createText(app){
+            OBJECT.text = new TEXT(app)
         },
 
+        
         // element
         animateElement(){
             for(let i in this.element){

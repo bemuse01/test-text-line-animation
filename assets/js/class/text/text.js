@@ -1,6 +1,9 @@
 import * as THREE from '../../lib/three.module.js'
+import {GPUComputationRenderer} from '../../lib/GPUComputationRenderer.js'
 import PUBLIC_METHOD from '../../method/method.js'
-import CHILD from './build/text.child.build.js '
+import CHILD from './build/text.child.build.js'
+import PARTICLE from './build/text.particle.build.js'
+import PARTICLE_PARAM from './param/text.particle.param.js'
 
 
 export default class{
@@ -22,10 +25,12 @@ export default class{
 
         this.modules = {
             child: CHILD,
+            particle: PARTICLE
         }
 
         this.initGroup()
         this.initRenderObject()
+        this.initGPGPU(app)
     }
     initGroup(){
         this.group = {}
@@ -59,6 +64,9 @@ export default class{
             }
         }
     }
+    initGPGPU({renderer}){
+        this.gpuCompute = new GPUComputationRenderer(PARTICLE_PARAM.w, PARTICLE_PARAM.h, renderer)
+    }
 
 
     // add
@@ -75,16 +83,19 @@ export default class{
             const instance = this.modules[module]
             const group = this.group[module]
 
-            this.comp[module] = new instance({group, size: this.size})
+            this.comp[module] = new instance({group, size: this.size, gpuCompute: this.gpuCompute})
         }
 
+        this.gpuCompute.init()
     }
 
 
     // animate
-    animate({app, audio}){
+    animate({app}){
+        this.gpuCompute.compute()
+
         this.render(app)
-        this.animateObject(audio)
+        this.animateObject()
     }
     render(app){
         const rect = this.element.getBoundingClientRect()
@@ -99,10 +110,10 @@ export default class{
         this.camera.lookAt(this.scene.position)
         app.renderer.render(this.scene, this.camera)
     }
-    animateObject(audio){
+    animateObject(){
         for(let i in this.comp){
             if(!this.comp[i] || !this.comp[i].animate) continue
-            this.comp[i].animate(audio)
+            this.comp[i].animate(this.comp)
         }
     }
 
